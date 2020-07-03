@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/03 05:07:55 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/03 07:06:36 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,47 @@
 #include <unistd.h>
 #include "ft_printf.h"
 
-int		(*(g_parse[256]))(unsigned char *, t_parse *) = {
+static int		ft_isdigit(char c)
+{
+	return (c >= '0' && c <= '9');
+}
+
+static	int		is_space(char c)
+{
+	return ((c >= '\t' && c <= '\r') || c == ' ');
+}
+
+int				ft_atoi(char **fmt)
+{
+	int		nb;
+	int		neg;
+	char	*str;
+
+	str = *fmt;
+	neg = 1;
+	while (*str && is_space(*str))
+		str++;
+	nb = 0;
+	if (*str == '-')
+		neg = -1;
+	if (*str == '+' || *str == '-')
+		str++;
+	while (*str && ft_isdigit(*str))
+	{
+		nb = nb * 10 + (*str - '0') * neg;
+		str++;
+	}
+	*fmt = str;
+	return (nb);
+}
+
+int		parse_field(unsigned char **fmt, t_parse *parse)
+{
+	parse->width = ft_atoi((char **)fmt);
+	return (0);
+}
+
+int		(*(g_parse[256]))(unsigned char **, t_parse *) = {
 	['1'] = parse_field,
 	['2'] = parse_field,
 	['3'] = parse_field,
@@ -39,29 +79,31 @@ int		(*(g_parse[256]))(unsigned char *, t_parse *) = {
 	['*'] = flag_aste,
 };
 
-void	parse_format(unsigned char *fmt, va_list ap)
+void	parse_format(unsigned char **fmt, va_list ap)
 {
 	t_parse	parse;
 
 	va_copy(parse.ap, ap);
-	while (g_parse[(int)*fmt])
+	(*fmt)++;
+	while (g_parse[(int)**fmt])
 	{
-		g_parse[(int)*fmt](fmt, &parse);
-		fmt++;
+		if (g_parse[(int)**fmt](fmt, &parse))
+			break ;
+		(*fmt)++;
 	}
 }
 
 int		ft_printf(const char *format, ...)
 {
 	va_list		ap;
-	int			count;
+	size_t		count;
 
 	count = 0;
 	va_start(ap, format);
 	while (*format)
 	{
 		if (*format == '%')
-			parse_format((unsigned char *)format + 1, ap);
+			parse_format((unsigned char **)&format, ap);
 		else
 		{
 			write(1, format, 1);
