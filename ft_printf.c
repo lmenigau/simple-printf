@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/03 07:06:36 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/08 17:15:37 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,48 @@ int		parse_field(unsigned char **fmt, t_parse *parse)
 	return (0);
 }
 
+void	ft_putnbr(int n)
+{
+	int		nb;
+	int		pow;
+	int		neg;
+
+	nb = n;
+	pow = 1;
+	neg = 1;
+	while (nb /= 10)
+		pow *= 10;
+	if (n < 0)
+		neg = -1;
+	if (n < 0)
+		write(1, "-", 1);
+	while (pow)
+	{
+		write(1, &(char){(n / pow) * neg + '0'}, 1);
+		n %= pow;
+		pow /= 10;
+	}
+}
+
+int		number_len(int n, int base)
+{
+	unsigned int len;
+
+	len = 1;
+	while (n /= base)
+		len++;
+	return (len);
+}
+
+int		conv_int(unsigned char **fmt, t_parse *parse)
+{
+	int		n;
+
+	n = va_arg(*parse->ap, int);
+	print_nchar(parse->width - number_len(n, 10), ' ');
+	ft_putnbr(n);
+}
+
 int		(*(g_parse[256]))(unsigned char **, t_parse *) = {
 	['1'] = parse_field,
 	['2'] = parse_field,
@@ -79,11 +121,13 @@ int		(*(g_parse[256]))(unsigned char **, t_parse *) = {
 	['*'] = flag_aste,
 };
 
-void	parse_format(unsigned char **fmt, va_list ap)
+void	parse_format(unsigned char **fmt, va_list *ap)
 {
 	t_parse	parse;
 
+
 	va_copy(parse.ap, ap);
+	parse.ap = *ap;
 	(*fmt)++;
 	while (g_parse[(int)**fmt])
 	{
@@ -103,7 +147,7 @@ int		ft_printf(const char *format, ...)
 	while (*format)
 	{
 		if (*format == '%')
-			parse_format((unsigned char **)&format, ap);
+			parse_format((unsigned char **)&format, &ap);
 		else
 		{
 			write(1, format, 1);
