@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/09 05:59:50 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/09 07:14:59 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,29 @@ void	ft_putnbr(int n)
 	}
 }
 
+void	ft_putnbr_base_prec(int n, char base[], int len)
+{
+	int		nb;
+	int		pow;
+	int		neg;
+
+	nb = n;
+	pow = 1;
+	neg = 1;
+	while (nb /= len)
+		pow *= len;
+	if (n < 0)
+		neg = -1;
+	if (n < 0)
+		write(1, "-", 1);
+	while (pow || prec)
+	{
+		write(1, base + ((n / pow) * neg + '0'), 1);
+		n %= pow;
+		pow /= len;
+	}
+}
+
 void	padd_char(int	n, char c)
 {
 	while (n > 0)
@@ -100,6 +123,8 @@ int		conv_int(t_parse *parse)
 {
 	int		n;
 
+	if (parse->prec >= 0)
+		parse->pad = ' ';
 	n = va_arg(*parse->ap, int);
 	if (!parse->left)
 		padd_char(parse->width - number_len(n, 10), parse->pad);
@@ -170,7 +195,7 @@ int		flag_prec(t_parse *parse)
 		parse->prec = ft_atoi(parse->fmt);
 	}
 	else
-		ft_atoi(parse->fmt);
+		parse->prec = ft_atoi(parse->fmt);
 	return (0);
 }
 
@@ -210,7 +235,7 @@ void	parse_format(char **fmt, va_list *ap)
 {
 	t_parse	parse;
 
-	parse = (t_parse){.fmt = fmt, .ap = ap, .width = 0, .left = 0, .pad = ' '};
+	parse = (t_parse){.fmt = fmt, .ap = ap, .width = 0, .left = 0, .pad = ' ', .prec = -1};
 	(*fmt)++;
 	while (g_parse[(unsigned)**fmt])
 	{
