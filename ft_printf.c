@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/11 20:08:54 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/11 20:38:20 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,10 +92,14 @@ void	ft_putnbr_base_prec(int n, char base[], int len, int prec)
 		neg = -1;
 	if (n < 0)
 		write(1, "-", 1);
-	while (pow || prec)
+	while (pow || prec > 0)
 	{
-		write(1, base + ((n / pow) * neg + '0'), 1);
-		n %= pow;
+		if (pow)
+			write(1, base + ((n / pow) * neg), 1);
+		else
+			write(1, "0", 1);
+		if (pow)
+			n %= pow;
 		pow /= len;
 	}
 }
@@ -129,6 +133,7 @@ int		conv_int(t_parse *parse)
 	if (!parse->left)
 		padd_char(parse->width - number_len(n, 10), parse->pad);
 	ft_putnbr_base_prec(n, "0123456789", 10, parse->prec);
+	printf("%d\n", parse->prec);
 	if (parse->left)
 		padd_char(parse->width - number_len(n, 10), parse->pad);
 	return (1);
