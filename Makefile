@@ -6,7 +6,7 @@ OBJ		= $(SRC:.c=.o)
 NAME	= libft_printf.a
 
 a.out 	: test.o $(NAME)
-		$(CC) $(CFLAGS) test.o  $(NAME)
+		$(CC) $(CFLAGS) test.o $(NAME)
 
 $(NAME) : $(NAME)($(OBJ))
 

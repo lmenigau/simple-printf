@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/09 07:14:59 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/11 20:08:54 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void	ft_putnbr(int n)
 	}
 }
 
-void	ft_putnbr_base_prec(int n, char base[], int len)
+void	ft_putnbr_base_prec(int n, char base[], int len, int prec)
 {
 	int		nb;
 	int		pow;
@@ -128,7 +128,7 @@ int		conv_int(t_parse *parse)
 	n = va_arg(*parse->ap, int);
 	if (!parse->left)
 		padd_char(parse->width - number_len(n, 10), parse->pad);
-	ft_putnbr(n);
+	ft_putnbr_base_prec(n, "0123456789", 10, parse->prec);
 	if (parse->left)
 		padd_char(parse->width - number_len(n, 10), parse->pad);
 	return (1);
