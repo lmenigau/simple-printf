@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/11 20:38:20 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/16 17:57:31 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ int				ft_atoi(char **fmt)
 		nb = nb * 10 + (*str - '0') * neg;
 		str++;
 	}
-	*fmt = str;
+	*fmt = str - 1;
 	return (nb);
 }
 
@@ -133,7 +133,6 @@ int		conv_int(t_parse *parse)
 	if (!parse->left)
 		padd_char(parse->width - number_len(n, 10), parse->pad);
 	ft_putnbr_base_prec(n, "0123456789", 10, parse->prec);
-	printf("%d\n", parse->prec);
 	if (parse->left)
 		padd_char(parse->width - number_len(n, 10), parse->pad);
 	return (1);
@@ -240,7 +239,8 @@ void	parse_format(char **fmt, va_list *ap)
 {
 	t_parse	parse;
 
-	parse = (t_parse){.fmt = fmt, .ap = ap, .width = 0, .left = 0, .pad = ' ', .prec = -1};
+	parse = (t_parse){.fmt = fmt, .ap = ap, .width = 0, .left = 0,
+		.pad = ' ', .prec = -1};
 	(*fmt)++;
 	while (g_parse[(unsigned)**fmt])
 	{
