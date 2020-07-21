@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/02 23:55:51 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/09 05:58:43 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/22 00:49:32 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # define	FT_PRINT_H
 
 # include <stdarg.h>
+# include <stdio.h>
 
 int		ft_printf(const char *format, ...);
 

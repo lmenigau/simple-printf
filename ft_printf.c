@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/16 17:57:31 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/22 01:13:43 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void	ft_putnbr(int n)
 	}
 }
 
-void	ft_putnbr_base_prec(int n, char base[], int len, int prec)
+void	ft_putnbr_base_prec(int n, char base[], int len)
 {
 	int		nb;
 	int		pow;
@@ -92,19 +92,15 @@ void	ft_putnbr_base_prec(int n, char base[], int len, int prec)
 		neg = -1;
 	if (n < 0)
 		write(1, "-", 1);
-	while (pow || prec > 0)
+	while (pow)
 	{
-		if (pow)
-			write(1, base + ((n / pow) * neg), 1);
-		else
-			write(1, "0", 1);
-		if (pow)
-			n %= pow;
+		write(1, base + ((n / pow) * neg), 1);
+		n %= pow;
 		pow /= len;
 	}
 }
 
-void	padd_char(int	n, char c)
+void	pad_char(int n, char c)
 {
 	while (n > 0)
 	{
@@ -123,6 +119,7 @@ int		number_len(int n, int base)
 	return (len);
 }
 
+
 int		conv_int(t_parse *parse)
 {
 	int		n;
@@ -131,10 +128,11 @@ int		conv_int(t_parse *parse)
 		parse->pad = ' ';
 	n = va_arg(*parse->ap, int);
 	if (!parse->left)
-		padd_char(parse->width - number_len(n, 10), parse->pad);
-	ft_putnbr_base_prec(n, "0123456789", 10, parse->prec);
+		pad_char(parse->width + parse->prec - number_len(n, 10), parse->pad);
+	pad_char(parse->prec - number_len(n, 10), '0');
+	ft_putnbr_base_prec(n, "0123456789", 10);
 	if (parse->left)
-		padd_char(parse->width - number_len(n, 10), parse->pad);
+		pad_char(parse->width + parse->prec - number_len(n, 10), parse->pad);
 	return (1);
 }
 
@@ -172,7 +170,7 @@ int		conv_uns()
 int		flag_aste(t_parse *parse)
 {
 	int		width;
-	
+
 	width = va_arg(*parse->ap, int);
 	if (width < 0)
 	{
