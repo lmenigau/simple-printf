@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/22 01:15:27 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/22 01:17:41 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,6 +127,8 @@ int		conv_int(t_parse *parse)
 	if (parse->prec >= 0)
 		parse->pad = ' ';
 	n = va_arg(*parse->ap, int);
+	if (parse->prec < number_len(n, 10))
+		parse->prec = number_len(n, 10);
 	if (!parse->left)
 		pad_char(parse->width - parse->prec, parse->pad);
 	pad_char(parse->prec - number_len(n, 10), '0');
