@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/22 01:13:43 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/22 01:15:27 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,11 +128,11 @@ int		conv_int(t_parse *parse)
 		parse->pad = ' ';
 	n = va_arg(*parse->ap, int);
 	if (!parse->left)
-		pad_char(parse->width + parse->prec - number_len(n, 10), parse->pad);
+		pad_char(parse->width - parse->prec, parse->pad);
 	pad_char(parse->prec - number_len(n, 10), '0');
 	ft_putnbr_base_prec(n, "0123456789", 10);
 	if (parse->left)
-		pad_char(parse->width + parse->prec - number_len(n, 10), parse->pad);
+		pad_char(parse->width - parse->prec, parse->pad);
 	return (1);
 }
 
