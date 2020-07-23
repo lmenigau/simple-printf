@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/22 01:17:41 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/22 04:24:53 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,9 @@ int		number_len(int n, int base)
 	return (len);
 }
 
+print_signed(t_parse *parse, long n, int base, char *charset)
+{
+}
 
 int		conv_int(t_parse *parse)
 {
