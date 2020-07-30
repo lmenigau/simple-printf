@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/22 04:24:53 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/29 14:35:02 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,14 +119,9 @@ int		number_len(int n, int base)
 	return (len);
 }
 
-print_signed(t_parse *parse, long n, int base, char *charset)
-{
-}
-
-int		conv_int(t_parse *parse)
+print_signed(t_parse *parse, int base, char *charset)
 {
 	int		n;
-
 	if (parse->prec >= 0)
 		parse->pad = ' ';
 	n = va_arg(*parse->ap, int);
@@ -138,6 +133,11 @@ int		conv_int(t_parse *parse)
 	ft_putnbr_base_prec(n, "0123456789", 10);
 	if (parse->left)
 		pad_char(parse->width - parse->prec, parse->pad);
+}
+
+int		conv_int(t_parse *parse)
+{
+	int		n;
 	return (1);
 }
 
