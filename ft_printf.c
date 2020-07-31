@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/31 08:20:05 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/31 10:55:27 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,10 +77,10 @@ void	ft_putnbr(int n)
 	}
 }
 
-void	ft_putnbr_base_prec(int n, const char base[static 1], int len)
+void	ft_putnbr_base_prec(unsigned long n, const char base[], int len)
 {
-	int		nb;
-	int		pow;
+	unsigned long	nb;
+	unsigned long	pow;
 	int		neg;
 
 	nb = n;
@@ -88,10 +88,6 @@ void	ft_putnbr_base_prec(int n, const char base[static 1], int len)
 	neg = 1;
 	while (nb /= len)
 		pow *= len;
-	if (n < 0)
-		neg = -1;
-	if (n < 0)
-		write(1, "-", 1);
 	while (pow)
 	{
 		write(1, base + ((n / pow) * neg), 1);
@@ -131,7 +127,7 @@ int		number_lenu(unsigned int n, int base)
 
 void	print_unsigned(t_parse *parse)
 {
-	unsigned	n;
+	unsigned long n;
 
 	if (parse->prec >= 0)
 		parse->pad = ' ';
@@ -144,7 +140,7 @@ void	print_unsigned(t_parse *parse)
 
 void	print_signed(t_parse *parse)
 {
-	int		n;
+	long		n;
 
 	if (parse->prec >= 0)
 		parse->pad = ' ';
@@ -152,17 +148,40 @@ void	print_signed(t_parse *parse)
 	if (parse->prec < number_len(n, parse->base))
 		parse->prec = number_len(n, parse->base);
 	pad_char(parse->prec - number_len(n, parse->base), '0');
+	if (n < 0)
+		write(1, "-", 1);
+	if (n < 0)
+		n = -n;
 	ft_putnbr_base_prec(n, parse->charset, parse->base);
 }
 
-void	print_str(t_pars *parse)
+void	print_str(t_parse *parse)
 {
+	char *str;
+	int		i;
 
+	i = 0;
+	while ((i < parse->prec && parse->prec > 0) || str[i])
+	{
+		write(1, str + i, 1);
+		i++;
+	}
+}
+
+size_t	ft_strlen(const char *s)
+{
+	size_t len;
+
+	len = 0;
+	while (*s++)
+		len++;
+	return (len);
 }
 
 void	print_field(t_parse *parse, void f(t_parse *))
 {
-	parse->padlen = parse->width - parse->prec;
+	if (parse->prec >= 0)
+		parse->padlen = parse->width - parse->prec;
 	if (parse->left)
 		f(parse);
 	pad_char(parse->padlen, parse->pad);
@@ -217,6 +236,10 @@ int		conv_ptr(t_parse *parse)
 
 int		conv_string(t_parse *parse)
 {
+	char	*str;
+
+	str = va_arg(*parse->ap, char *);
+	print_field(parse, print_str);
 	return (1);
 }
 
