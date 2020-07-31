@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/02 23:55:51 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/31 10:08:24 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/31 14:22:17 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ typedef struct 	s_parse
 	va_list			*ap;
 	char			**fmt;
 	const char		*charset;
+	char			*str;
 	long			nb;
 	int				width;
 	int				padlen;

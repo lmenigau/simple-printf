@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/31 10:55:27 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/31 14:28:02 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,13 +157,12 @@ void	print_signed(t_parse *parse)
 
 void	print_str(t_parse *parse)
 {
-	char *str;
 	int		i;
 
 	i = 0;
-	while ((i < parse->prec && parse->prec > 0) || str[i])
+	while ((i < parse->prec && parse->prec > 0) || parse->str[i])
 	{
-		write(1, str + i, 1);
+		write(1, parse->str + i, 1);
 		i++;
 	}
 }
@@ -236,9 +235,8 @@ int		conv_ptr(t_parse *parse)
 
 int		conv_string(t_parse *parse)
 {
-	char	*str;
-
-	str = va_arg(*parse->ap, char *);
+	parse->str = va_arg(*parse->ap, char *);
+	parse->padlen = parse->width - ft_strlen(parse->str);
 	print_field(parse, print_str);
 	return (1);
 }
