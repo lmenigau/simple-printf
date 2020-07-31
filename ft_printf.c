@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/31 14:41:35 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/31 14:48:38 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ void	pad_char(int n, char c)
 	}
 }
 
-int		number_len(long n, int base)
+int		number_len(unsigned long n, int base)
 {
 	unsigned len;
 
@@ -135,13 +135,13 @@ void	print_signed(t_parse *parse)
 	if (parse->prec >= 0)
 		parse->pad = ' ';
 	n = va_arg(*parse->ap, int);
-	if (parse->prec < number_len(n, parse->base))
-		parse->prec = number_len(n, parse->base);
-	pad_char(parse->prec - number_len(n, parse->base), '0');
 	if (n < 0)
 		write(1, "-", 1);
+	if (parse->prec < number_len(n, parse->base))
+		parse->prec = number_len(n, parse->base) - (n < 0);
 	if (n < 0)
 		n = -n;
+	pad_char(parse->prec - number_len(n, parse->base), '0');
 	ft_putnbr_base_prec(n, parse->charset, parse->base);
 }
 
