@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/31 08:05:48 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/31 08:20:05 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ int		number_lenu(unsigned int n, int base)
 	return (len);
 }
 
-void	print_unsigned(t_parse *parse, int base, const char *charset)
+void	print_unsigned(t_parse *parse)
 {
 	unsigned	n;
 
@@ -155,6 +155,11 @@ void	print_signed(t_parse *parse)
 	ft_putnbr_base_prec(n, parse->charset, parse->base);
 }
 
+void	print_str(t_pars *parse)
+{
+
+}
+
 void	print_field(t_parse *parse, void f(t_parse *))
 {
 	parse->padlen = parse->width - parse->prec;
@@ -167,8 +172,6 @@ void	print_field(t_parse *parse, void f(t_parse *))
 
 int		conv_int(t_parse *parse)
 {
-	parse->base = 10;
-	parse->charset = "0123456789";
 	print_field(parse, print_signed);
 	return (1);
 }
@@ -184,15 +187,17 @@ int		conv_char(t_parse *parse)
 int		conv_hex(t_parse *parse)
 {
 
+	parse->base = 16;
 	parse->charset = "0123456789abcdef";
-	print_unsigned(parse, 16, "0123456789abcdef");
+	print_field(parse, print_unsigned);
 	return (1);
 }
 
 int		conv_hex_up(t_parse *parse)
 {
+	parse->base = 16;
 	parse->charset = "0123456789ABCDEF";
-	print_unsigned(parse, 16, "0123456789ABCDEF");
+	print_field(parse, print_unsigned);
 	return (1);
 }
 
@@ -204,18 +209,20 @@ int		conv_pc()
 
 int		conv_ptr(t_parse *parse)
 {
+	parse->base = 16;
+	parse->charset = "0123456789abcdef";
+	print_field(parse, print_unsigned);
 	return (1);
 }
 
 int		conv_string(t_parse *parse)
 {
-	
 	return (1);
 }
 
 int		conv_uns(t_parse *parse)
 {
-	print_unsigned(parse, 10, "0123456789");
+	print_field(parse, print_unsigned);
 	return (1);
 }
 
@@ -290,7 +297,7 @@ void	parse_format(char **fmt, va_list *ap)
 	t_parse	parse;
 
 	parse = (t_parse){.fmt = fmt, .ap = ap, .width = 0, .left = 0,
-		.pad = ' ', .prec = -1};
+		.pad = ' ', .prec = -1, .base = 10, .charset = "0123456789"};
 	(*fmt)++;
 	while (g_parse[(unsigned)**fmt])
 	{
