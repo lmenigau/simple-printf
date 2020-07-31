@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/30 23:45:11 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/31 08:05:48 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ void	ft_putnbr(int n)
 	}
 }
 
-void	ft_putnbr_base_prec(int n, const char base[], int len)
+void	ft_putnbr_base_prec(int n, const char base[static 1], int len)
 {
 	int		nb;
 	int		pow;
@@ -135,36 +135,41 @@ void	print_unsigned(t_parse *parse, int base, const char *charset)
 
 	if (parse->prec >= 0)
 		parse->pad = ' ';
-	n = va_arg(*parse->ap, unsigned int);
-	if (parse->prec < number_lenu(n, base))
-		parse->prec = number_lenu(n, base);
-	if (!parse->left)
-		pad_char(parse->width - parse->prec, parse->pad);
-	pad_char(parse->prec - number_lenu(n, base), '0');
-	ft_putnbr_base_prec(n, charset, base);
-	if (parse->left)
-		pad_char(parse->width - parse->prec, parse->pad);
+	n = va_arg(*parse->ap, int);
+	if (parse->prec < number_len(n, parse->base))
+		parse->prec = number_len(n, parse->base);
+	pad_char(parse->prec - number_len(n, parse->base), '0');
+	ft_putnbr_base_prec(n, parse->charset, parse->base);
 }
 
-void	print_signed(t_parse *parse, int base, const char *charset)
+void	print_signed(t_parse *parse)
 {
 	int		n;
+
 	if (parse->prec >= 0)
 		parse->pad = ' ';
 	n = va_arg(*parse->ap, int);
-	if (parse->prec < number_len(n, base))
-		parse->prec = number_len(n, base);
-	if (!parse->left)
-		pad_char(parse->width - parse->prec, parse->pad);
-	pad_char(parse->prec - number_len(n, base), '0');
-	ft_putnbr_base_prec(n, charset, base);
+	if (parse->prec < number_len(n, parse->base))
+		parse->prec = number_len(n, parse->base);
+	pad_char(parse->prec - number_len(n, parse->base), '0');
+	ft_putnbr_base_prec(n, parse->charset, parse->base);
+}
+
+void	print_field(t_parse *parse, void f(t_parse *))
+{
+	parse->padlen = parse->width - parse->prec;
 	if (parse->left)
-		pad_char(parse->width - parse->prec, parse->pad);
+		f(parse);
+	pad_char(parse->padlen, parse->pad);
+	if (!parse->left)
+		f(parse);
 }
 
 int		conv_int(t_parse *parse)
 {
-	print_signed(parse, 10, "0123456789");
+	parse->base = 10;
+	parse->charset = "0123456789";
+	print_field(parse, print_signed);
 	return (1);
 }
 
@@ -178,7 +183,16 @@ int		conv_char(t_parse *parse)
 
 int		conv_hex(t_parse *parse)
 {
+
+	parse->charset = "0123456789abcdef";
 	print_unsigned(parse, 16, "0123456789abcdef");
+	return (1);
+}
+
+int		conv_hex_up(t_parse *parse)
+{
+	parse->charset = "0123456789ABCDEF";
+	print_unsigned(parse, 16, "0123456789ABCDEF");
 	return (1);
 }
 
@@ -263,7 +277,7 @@ int		(*(g_parse[256]))(t_parse *) = {
 	['i'] = conv_int,
 	['u'] = conv_uns,
 	['x'] = conv_hex,
-	['X'] = conv_hex,
+	['X'] = conv_hex_up,
 	['%'] = conv_pc,
 	['-'] = flag_min,
 	['0'] = flag_zero,
