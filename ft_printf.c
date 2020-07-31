@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/31 14:33:46 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/31 14:41:35 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,17 +105,7 @@ void	pad_char(int n, char c)
 	}
 }
 
-int		number_len(int n, int base)
-{
-	unsigned len;
-
-	len = 1;
-	while (n /= base)
-		len++;
-	return (len);
-}
-
-int		number_lenu(unsigned int n, int base)
+int		number_len(long n, int base)
 {
 	unsigned len;
 
