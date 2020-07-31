@@ -6,7 +6,7 @@
 /*   By: lomeniga <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/07/01 22:26:29 by lomeniga          #+#    #+#             */
-/*   Updated: 2020/07/31 14:28:02 by lomeniga         ###   ########.fr       */
+/*   Updated: 2020/07/31 14:33:46 by lomeniga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,7 @@ void	print_unsigned(t_parse *parse)
 
 	if (parse->prec >= 0)
 		parse->pad = ' ';
-	n = va_arg(*parse->ap, int);
+	n = va_arg(*parse->ap, unsigned int);
 	if (parse->prec < number_len(n, parse->base))
 		parse->prec = number_len(n, parse->base);
 	pad_char(parse->prec - number_len(n, parse->base), '0');
@@ -194,11 +194,17 @@ int		conv_int(t_parse *parse)
 	return (1);
 }
 
-int		conv_char(t_parse *parse)
+void	print_char(t_parse *parse)
 {
 	unsigned char	c;
 
 	c = va_arg(*parse->ap, int);
+	write(1, &c, 1);
+}
+
+int		conv_char(t_parse *parse)
+{
+	print_field(parse, print_char);
 	return (1);
 }
 
