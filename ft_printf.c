@@ -14,17 +14,17 @@
 #include <unistd.h>
 #include "ft_printf.h"
 
-static int  ft_isdigit(char c)
+static int	ft_isdigit(char c)
 {
 	return (c >= '0' && c <= '9');
 }
 
-static int  is_space(char c)
+static int	is_space(char c)
 {
 	return ((c >= '\t' && c <= '\r') || c == ' ');
 }
 
-int         ft_atoi(char **fmt)
+int			ft_atoi(char **fmt)
 {
 	int		nb;
 	int		neg;
@@ -48,13 +48,25 @@ int         ft_atoi(char **fmt)
 	return (nb);
 }
 
-int         parse_field(t_parse *parse)
+int			parse_field(t_parse *parse)
 {
 	parse->width = ft_atoi(parse->fmt);
 	return (0);
 }
 
-void        ft_putnbr(int n)
+void		write_buf(t_buf *buf, char c)
+{
+		buf->buf[buf->index] = c;
+		buf->index++;
+		buf->total++;
+		if (buf->index == 1024)
+		{
+			write(1, buf->buf, 1024);
+			buf->index = 0;
+		}
+}
+
+void		ft_putnbr(t_buf *buf, int n)
 {
 	int		nb;
 	int		pow;
@@ -68,16 +80,16 @@ void        ft_putnbr(int n)
 	if (n < 0)
 		neg = -1;
 	if (n < 0)
-		write(1, "-", 1);
+		write_buf(buf, '-');
 	while (pow)
 	{
-		write(1, &(char){(n / pow) * neg + '0'}, 1);
+		write_buf(buf, (n / pow) * neg + '0');
 		n %= pow;
 		pow /= 10;
 	}
 }
 
-void        ft_putnbr_base_prec(unsigned long n, const char base[], int len)
+void		ft_putnbr_base_prec(t_buf *buf, unsigned long n, const char base[], int len)
 {
 	unsigned long	nb;
 	unsigned long	pow;
@@ -90,24 +102,24 @@ void        ft_putnbr_base_prec(unsigned long n, const char base[], int len)
 		pow *= len;
 	while (pow)
 	{
-		write(1, base + ((n / pow) * neg), 1);
+		write_buf(buf, base[((n / pow) * neg)]);
 		n %= pow;
 		pow /= len;
 	}
 }
 
-void        pad_char(int n, char c)
+void		pad_char(t_buf *buf, int n, char c)
 {
 	while (n > 0)
 	{
-		write(1, &c, 1);
+		write_buf(buf, c);
 		n--;
 	}
 }
 
-int         number_len(unsigned long n, int base)
+int			number_len(unsigned long n, int base)
 {
-	unsigned   len;
+	unsigned  len;
 
 	len = 1;
 	while (n /= base)
@@ -115,22 +127,22 @@ int         number_len(unsigned long n, int base)
 	return (len);
 }
 
-void        print_unsigned(t_parse *parse)
+void		print_unsigned(t_parse *parse)
 {
-	unsigned long   n;
+	unsigned long  n;
 
 	if (parse->prec >= 0)
 		parse->pad = ' ';
 	n = va_arg(*parse->ap, unsigned int);
 	if (parse->prec < number_len(n, parse->base))
 		parse->prec = number_len(n, parse->base);
-	pad_char(parse->prec - number_len(n, parse->base), '0');
-	ft_putnbr_base_prec(n, parse->charset, parse->base);
+	pad_char(parse->buf, parse->prec - number_len(n, parse->base), '0');
+	ft_putnbr_base_prec(parse->buf, n, parse->charset, parse->base);
 }
 
-void        print_signed(t_parse *parse)
+void		print_signed(t_parse *parse)
 {
-	long   n;
+	long  n;
 
 	if (parse->prec >= 0)
 		parse->pad = ' ';
@@ -141,25 +153,25 @@ void        print_signed(t_parse *parse)
 		parse->prec = number_len(n, parse->base) - (n < 0);
 	if (n < 0)
 		n = -n;
-	pad_char(parse->prec - number_len(n, parse->base), '0');
-	ft_putnbr_base_prec(n, parse->charset, parse->base);
+	pad_char(parse->buf, parse->prec - number_len(n, parse->base), '0');
+	ft_putnbr_base_prec(parse->buf, n, parse->charset, parse->base);
 }
 
-void        print_str(t_parse *parse)
+void		print_str(t_parse *parse)
 {
-	int   i;
+	int  i;
 
 	i = 0;
 	while ((i < parse->prec && parse->prec > 0) || parse->str[i])
 	{
-		write(1, parse->str + i, 1);
+		write_buf(parse->buf, parse->str[i]);
 		i++;
 	}
 }
 
-size_t      ft_strlen(const char *s)
+size_t		ft_strlen(const char *s)
 {
-	size_t   len;
+	size_t  len;
 
 	len = 0;
 	while (*s++)
@@ -167,38 +179,38 @@ size_t      ft_strlen(const char *s)
 	return (len);
 }
 
-void        print_field(t_parse *parse, voidf(t_parse *))
+void		print_field(t_parse *parse, void (f)(t_parse *))
 {
 	if (parse->prec >= 0)
 		parse->padlen = parse->width - parse->prec;
 	if (parse->left)
 		f(parse);
-	pad_char(parse->padlen, parse->pad);
+	pad_char(parse->buf, parse->padlen, parse->pad);
 	if (!parse->left)
 		f(parse);
 }
 
-int         conv_int(t_parse *parse)
+int			conv_int(t_parse *parse)
 {
 	print_field(parse, print_signed);
 	return (1);
 }
 
-void        print_char(t_parse *parse)
+void		print_char(t_parse *parse)
 {
-	unsigned char   c;
+	unsigned char  c;
 
 	c = va_arg(*parse->ap, int);
-	write(1, &c, 1);
+	write_buf(parse->buf, c);
 }
 
-int         conv_char(t_parse *parse)
+int			conv_char(t_parse *parse)
 {
 	print_field(parse, print_char);
 	return (1);
 }
 
-int         conv_hex(t_parse *parse)
+int			conv_hex(t_parse *parse)
 {
 
 	parse->base = 16;
@@ -207,7 +219,7 @@ int         conv_hex(t_parse *parse)
 	return (1);
 }
 
-int         conv_hex_up(t_parse *parse)
+int			conv_hex_up(t_parse *parse)
 {
 	parse->base = 16;
 	parse->charset = "0123456789ABCDEF";
@@ -215,13 +227,13 @@ int         conv_hex_up(t_parse *parse)
 	return (1);
 }
 
-int         conv_pc()
+int			conv_pc()
 {
 	write(1, "%", 1);
 	return (1);
 }
 
-int         conv_ptr(t_parse *parse)
+int			conv_ptr(t_parse *parse)
 {
 	parse->base = 16;
 	parse->charset = "0123456789abcdef";
@@ -229,7 +241,7 @@ int         conv_ptr(t_parse *parse)
 	return (1);
 }
 
-int         conv_string(t_parse *parse)
+int			conv_string(t_parse *parse)
 {
 	parse->str = va_arg(*parse->ap, char *);
 	parse->padlen = parse->width - ft_strlen(parse->str);
@@ -237,15 +249,15 @@ int         conv_string(t_parse *parse)
 	return (1);
 }
 
-int         conv_uns(t_parse *parse)
+int			conv_uns(t_parse *parse)
 {
 	print_field(parse, print_unsigned);
 	return (1);
 }
 
-int         flag_aste(t_parse *parse)
+int			flag_aste(t_parse *parse)
 {
-	int   width;
+	int  width;
 
 	width = va_arg(*parse->ap, int);
 	if (width < 0)
@@ -258,13 +270,13 @@ int         flag_aste(t_parse *parse)
 	return (0);
 }
 
-int         flag_min(t_parse *parse)
+int			flag_min(t_parse *parse)
 {
 	parse->left = 1;
 	return (0);
 }
 
-int         flag_prec(t_parse *parse)
+int			flag_prec(t_parse *parse)
 {
 	(*parse->fmt)++;
 	if(**parse->fmt == '*')
@@ -277,7 +289,7 @@ int         flag_prec(t_parse *parse)
 	return (0);
 }
 
-int         flag_zero(t_parse *parse)
+int			flag_zero(t_parse *parse)
 {
 	if (!parse->left)
 		parse->pad = '0';
@@ -309,12 +321,12 @@ int     (*(g_parse[256]))(t_parse *) = {
 	['*'] = flag_aste,
 };
 
-void    parse_format(char **fmt, va_list *ap)
+void		parse_format(char **fmt, va_list *ap, t_buf *buf)
 {
 	t_parse   parse;
 
 	parse = (t_parse){ .fmt = fmt, .ap = ap, .width = 0, .left = 0, .pad = ' ',
-		.prec = -1, .base = 10, .charset = "0123456789" };
+		.prec = -1, .base = 10, .charset = "0123456789", .buf = buf };
 	(*fmt)++;
 	while (g_parse[(unsigned)**fmt])
 	{
@@ -324,25 +336,26 @@ void    parse_format(char **fmt, va_list *ap)
 	}
 }
 
-int     ft_printf(const char *format, ...)
+int			ft_printf(const char *format, ...)
 {
 	va_list		ap;
-	size_t		count;
+	t_buf		buf;
 
-
-	count = 0;
+	buf.total = 0;
+	buf.index = 0;
 	va_start(ap, format);
 	while (*format)
 	{
 		if (*format == '%')
-			parse_format((char **)&format, &ap);
+			parse_format((char **)&format, &ap, &buf);
 		else
 		{
-			write(1, format, 1);
-			count++;
+			write_buf(&buf, *format);
+			buf.total++;
 		}
 		format++;
 	}
 	va_end(ap);
-	return (count);
+	write(1, buf.buf, buf.index);
+	return (buf.total);
 }

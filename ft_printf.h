@@ -11,18 +11,17 @@
 /* ************************************************************************** */
 
 
-#ifndef		FT_PRINT_H
-# define	FT_PRINT_H
+#ifndef     FT_PRINT_H
+# define    FT_PRINT_H
 
 # include <stdarg.h>
 # include <stdio.h>
 
 int		ft_printf(const char *format, ...);
-
 int		parse_field();
 int		conv_char();
 int		conv_string();
-int		conv_ptr(); 
+int		conv_ptr();
 int		conv_int();
 int		conv_uns();
 int		conv_hex();
@@ -32,19 +31,28 @@ int		flag_zero();
 int		flag_prec();
 int		flag_aste();
 
-typedef struct 	s_parse
+typedef struct  s_buf
 {
-	va_list			*ap;
-	char			**fmt;
-	const char		*charset;
-	char			*str;
-	long			nb;
-	int				width;
-	int				padlen;
-	int				prec;
-	int				base;
-	char			pad;
-	_Bool			left;
-}				t_parse;
+	size_t	total;
+	char	buf[1024];
+	int		index;
+
+}               t_buf;
+
+typedef struct  s_parse
+{
+	va_list		*ap;
+	char		**fmt;
+	const char	*charset;
+	char		*str;
+	t_buf		*buf;
+	long		nb;
+	int			width;
+	int			padlen;
+	int			prec;
+	int			base;
+	char		pad;
+	_Bool		left;
+}               t_parse;
 
 #endif
