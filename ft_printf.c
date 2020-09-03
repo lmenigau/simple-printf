@@ -134,6 +134,8 @@ void		print_unsigned(t_parse *parse)
 	if (parse->prec >= 0)
 		parse->pad = ' ';
 	n = va_arg(*parse->ap, unsigned int);
+	if (parse->prec == 0 && n == 0)
+		return ;
 	if (parse->prec < number_len(n, parse->base))
 		parse->prec = number_len(n, parse->base);
 	pad_char(parse->buf, parse->prec - number_len(n, parse->base), '0');
@@ -147,6 +149,8 @@ void		print_signed(t_parse *parse)
 	if (parse->prec >= 0)
 		parse->pad = ' ';
 	n = va_arg(*parse->ap, int);
+	if (parse->prec == 0 && n == 0)
+		return ;
 	if (n < 0)
 		write(1, "-", 1);
 	if (parse->prec < number_len(n, parse->base))
