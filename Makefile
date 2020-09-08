@@ -1,9 +1,9 @@
 SRC		= ft_printf.c
 OBJ		= $(SRC:.c=.o)
 
-#CFLAGS	= -Wall -Wextra -Werror
+CFLAGS	= -Wall -Wextra -O3 -fsanitize=address
 
-NAME	= libft_printf.a
+NAME	= libftprintf.a
 
 a.out 	: test.o $(NAME)
 		$(CC) $(CFLAGS) test.o $(NAME)

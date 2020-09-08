@@ -66,29 +66,6 @@ void		write_buf(t_buf *buf, char c)
 		}
 }
 
-void		ft_putnbr(t_buf *buf, int n)
-{
-	int		nb;
-	int		pow;
-	int		neg;
-
-	nb = n;
-	pow = 1;
-	neg = 1;
-	while (nb /= 10)
-		pow *= 10;
-	if (n < 0)
-		neg = -1;
-	if (n < 0)
-		write_buf(buf, '-');
-	while (pow)
-	{
-		write_buf(buf, (n / pow) * neg + '0');
-		n %= pow;
-		pow /= 10;
-	}
-}
-
 void		ft_putnbr_base_prec(t_buf *buf, unsigned long n, const char base[], int len)
 {
 	unsigned long	nb;
@@ -136,29 +113,18 @@ void		print_unsigned(t_parse *parse)
 	n = va_arg(*parse->ap, unsigned int);
 	if (parse->prec == 0 && n == 0)
 		return ;
-	if (parse->prec < number_len(n, parse->base))
-		parse->prec = number_len(n, parse->base);
-	pad_char(parse->buf, parse->prec - number_len(n, parse->base), '0');
+	if (parse->prec < parse->nlen)
+		parse->prec = parse->nlen;
+	pad_char(parse->buf, parse->prec - parse->nlen, '0');
 	ft_putnbr_base_prec(parse->buf, n, parse->charset, parse->base);
 }
 
 void		print_signed(t_parse *parse)
 {
-	long  n;
-
-	if (parse->prec >= 0)
-		parse->pad = ' ';
-	n = va_arg(*parse->ap, int);
-	if (parse->prec == 0 && n == 0)
-		return ;
-	if (n < 0)
-		write(1, "-", 1);
-	if (parse->prec < number_len(n, parse->base))
-		parse->prec = number_len(n, parse->base) - (n < 0);
-	if (n < 0)
-		n = -n;
-	pad_char(parse->buf, parse->prec - number_len(n, parse->base), '0');
-	ft_putnbr_base_prec(parse->buf, n, parse->charset, parse->base);
+	if (parse->neg)
+		write_buf(parse->buf, '-');
+	pad_char(parse->buf, parse->prec - parse->nlen, '0');
+	ft_putnbr_base_prec(parse->buf, parse->nb, parse->charset, parse->base);
 }
 
 void		print_str(t_parse *parse)
@@ -166,7 +132,7 @@ void		print_str(t_parse *parse)
 	int  i;
 
 	i = 0;
-	while ((i < parse->prec && parse->prec > 0) || parse->str[i])
+	while ((parse->prec > 0 && i < parse->prec && parse->str[i]) || (parse->prec < 0 &&  parse->str[i]))
 	{
 		write_buf(parse->buf, parse->str[i]);
 		i++;
@@ -185,8 +151,6 @@ size_t		ft_strlen(const char *s)
 
 void		print_field(t_parse *parse, void (f)(t_parse *))
 {
-	if (parse->prec >= 0)
-		parse->padlen = parse->width - parse->prec;
 	if (parse->left)
 		f(parse);
 	pad_char(parse->buf, parse->padlen, parse->pad);
@@ -196,6 +160,20 @@ void		print_field(t_parse *parse, void (f)(t_parse *))
 
 int			conv_int(t_parse *parse)
 {
+
+	if (parse->prec >= 0)
+		parse->pad = ' ';
+	parse->nb = va_arg(*parse->ap, int);
+	if (parse->prec == 0 && parse->nb == 0)
+		return (1);
+	parse->neg = parse->nb < 0;
+	parse->nlen = number_len(parse->nb, parse->base) + parse->neg;
+	if (parse->neg)
+		parse->nb = -parse->nb;
+	if (parse->prec < parse->nlen)
+		parse->prec = parse->nlen + parse->neg;
+	if (parse->prec >= 0)
+		parse->padlen = parse->width - parse->prec;
 	print_field(parse, print_signed);
 	return (1);
 }
@@ -210,13 +188,15 @@ void		print_char(t_parse *parse)
 
 int			conv_char(t_parse *parse)
 {
+	parse->padlen = parse->width - 1;
 	print_field(parse, print_char);
 	return (1);
 }
 
 int			conv_hex(t_parse *parse)
 {
-
+	if (parse->prec >= 0)
+		parse->padlen = parse->width - parse->prec;
 	parse->base = 16;
 	parse->charset = "0123456789abcdef";
 	print_field(parse, print_unsigned);
@@ -225,6 +205,8 @@ int			conv_hex(t_parse *parse)
 
 int			conv_hex_up(t_parse *parse)
 {
+	if (parse->prec >= 0)
+		parse->padlen = parse->width - parse->prec;
 	parse->base = 16;
 	parse->charset = "0123456789ABCDEF";
 	print_field(parse, print_unsigned);
@@ -239,6 +221,8 @@ int			conv_pc()
 
 int			conv_ptr(t_parse *parse)
 {
+	if (parse->prec >= 0)
+		parse->padlen = parse->width - parse->prec;
 	parse->base = 16;
 	parse->charset = "0123456789abcdef";
 	print_field(parse, print_unsigned);
@@ -248,7 +232,11 @@ int			conv_ptr(t_parse *parse)
 int			conv_string(t_parse *parse)
 {
 	parse->str = va_arg(*parse->ap, char *);
-	parse->padlen = parse->width - ft_strlen(parse->str);
+	int len = ft_strlen(parse->str);
+	parse->padlen = parse->width;
+	if (parse->prec >= 0 && parse->prec < len)
+		len = parse->prec;
+	parse->padlen -= len;
 	print_field(parse, print_str);
 	return (1);
 }

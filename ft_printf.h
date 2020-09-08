@@ -49,10 +49,12 @@ typedef struct  s_parse
 	long		nb;
 	int			width;
 	int			padlen;
+	int			nlen;
 	int			prec;
 	int			base;
 	char		pad;
 	_Bool		left;
+	_Bool		neg;
 }               t_parse;
 
 #endif
