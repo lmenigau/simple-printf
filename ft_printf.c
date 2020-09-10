@@ -124,8 +124,9 @@ void		print_signed(t_parse *parse)
 	if (parse->neg)
 		write_buf(parse->buf, '-');
 	dprintf(9, "%d\n", parse->prec);
-	pad_char(parse->buf, parse->prec - parse->nlen - (parse->zero && parse->neg), '0');
-	ft_putnbr_base_prec(parse->buf, parse->nb, parse->charset, parse->base);
+	pad_char(parse->buf, parse->pwidth - parse->nlen - (parse->zero && parse->neg), '0');
+	if (parse->prec)
+		ft_putnbr_base_prec(parse->buf, parse->nb, parse->charset, parse->base);
 }
 
 void		print_str(t_parse *parse)
@@ -174,9 +175,12 @@ int			conv_int(t_parse *parse)
 	if (parse->neg)
 		parse->nb = -parse->nb;
 	parse->nlen = number_len(parse->nb, parse->base);
-	if (parse->prec < parse->nlen)
-		parse->prec = parse->nlen;
-	parse->padlen = parse->width - parse->prec - parse->neg;
+	if (!parse->prec && !parse->nb)
+		parse->nlen = 0;
+	parse->pwidth = parse->nlen;
+	if (parse->prec > parse->nlen)
+		parse->pwidth = parse->prec;
+	parse->padlen = parse->width - parse->pwidth - parse->neg;
 	print_field(parse, print_signed);
 	return (1);
 }

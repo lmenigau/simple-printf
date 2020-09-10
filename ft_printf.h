@@ -48,6 +48,7 @@ typedef struct  s_parse
 	t_buf		*buf;
 	long		nb;
 	int			width;
+	int			pwidth;
 	int			padlen;
 	int			nlen;
 	int			prec;
