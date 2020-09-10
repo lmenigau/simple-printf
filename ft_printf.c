@@ -226,6 +226,7 @@ void		print_pc(t_parse *parse)
 
 int			conv_pc(t_parse *parse)
 {
+	parse->padlen = parse->width - 1;
 	print_field(parse, print_pc);
 	return (1);
 }
