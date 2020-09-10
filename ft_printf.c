@@ -106,10 +106,12 @@ int			number_len(unsigned long n, int base)
 
 void		print_unsigned(t_parse *parse)
 {
-
-	if (parse->prec >= 0)
-		parse->zero = 0;
-	pad_char(parse->buf, parse->pwidth - parse->nlen - (parse->zero && parse->neg), '0');
+	if (parse->hash)
+	{
+		write_buf(parse->buf, '0');
+		write_buf(parse->buf, 'x');
+	}
+	pad_char(parse->buf, parse->pwidth - parse->nlen, '0');
 	if (parse->prec)
 		ft_putnbr_base_prec(parse->buf, parse->nb, parse->charset, parse->base);
 }
@@ -234,9 +236,11 @@ int			conv_pc(t_parse *parse)
 int			conv_ptr(t_parse *parse)
 {
 	parse->nb = va_arg(*parse->ap, long);
+	parse->hash = 1;
 	parse->base = 16;
 	parse->charset = "0123456789abcdef";
 	conv_num(parse);
+	parse->padlen -= 2;
 	print_field(parse, print_unsigned);
 	return (1);
 }
@@ -244,6 +248,8 @@ int			conv_ptr(t_parse *parse)
 int			conv_string(t_parse *parse)
 {
 	parse->str = va_arg(*parse->ap, char *);
+	if (parse->str == NULL)
+		parse->str = "(null)";
 	int len = ft_strlen(parse->str);
 	parse->padlen = parse->width;
 	if (parse->prec >= 0 && parse->prec < len)
@@ -269,7 +275,7 @@ int			flag_aste(t_parse *parse)
 	if (width < 0)
 	{
 		parse->width = -width;
-		parse->left = 0;
+		parse->left = 1;
 	}
 	else
 		parse->width = width;

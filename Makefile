@@ -1,7 +1,7 @@
 SRC		= ft_printf.c
 OBJ		= $(SRC:.c=.o)
 
-CFLAGS	= -Wall -Wextra -O3 -fsanitize=address
+CFLAGS	= -Wall -Wextra -O3
 
 NAME	= libftprintf.a
 
