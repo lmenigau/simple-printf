@@ -106,17 +106,12 @@ int			number_len(unsigned long n, int base)
 
 void		print_unsigned(t_parse *parse)
 {
-	unsigned long  n;
 
 	if (parse->prec >= 0)
 		parse->zero = 0;
-	n = va_arg(*parse->ap, unsigned int);
-	if (parse->prec == 0 && n == 0)
-		return ;
-	if (parse->prec < parse->nlen)
-		parse->prec = parse->nlen;
-	pad_char(parse->buf, parse->prec - parse->nlen, '0');
-	ft_putnbr_base_prec(parse->buf, n, parse->charset, parse->base);
+	pad_char(parse->buf, parse->pwidth - parse->nlen - (parse->zero && parse->neg), '0');
+	if (parse->prec)
+		ft_putnbr_base_prec(parse->buf, parse->nb, parse->charset, parse->base);
 }
 
 void		print_signed(t_parse *parse)
@@ -160,9 +155,8 @@ void		print_field(t_parse *parse, void (f)(t_parse *))
 		f(parse);
 }
 
-int			conv_int(t_parse *parse)
+void	conv_num(t_parse *parse)
 {
-
 	if (parse->prec >= 0)
 	{
 		parse->zero = 0;
@@ -170,10 +164,6 @@ int			conv_int(t_parse *parse)
 	}
 	if (parse->zero)
 		parse->prec = parse->width;
-	parse->nb = va_arg(*parse->ap, int);
-	parse->neg = (parse->nb < 0);
-	if (parse->neg)
-		parse->nb = -parse->nb;
 	parse->nlen = number_len(parse->nb, parse->base);
 	if (!parse->prec && !parse->nb)
 		parse->nlen = 0;
@@ -181,6 +171,15 @@ int			conv_int(t_parse *parse)
 	if (parse->prec > parse->nlen)
 		parse->pwidth = parse->prec;
 	parse->padlen = parse->width - parse->pwidth - parse->neg;
+}
+int			conv_int(t_parse *parse)
+{
+
+	parse->nb = va_arg(*parse->ap, int);
+	parse->neg = (parse->nb < 0);
+	if (parse->neg)
+		parse->nb = -parse->nb;
+	conv_num(parse);
 	print_field(parse, print_signed);
 	return (1);
 }
@@ -202,36 +201,41 @@ int			conv_char(t_parse *parse)
 
 int			conv_hex(t_parse *parse)
 {
-	if (parse->prec >= 0)
-		parse->padlen = parse->width - parse->prec;
+	parse->nb = va_arg(*parse->ap, unsigned int);
 	parse->base = 16;
 	parse->charset = "0123456789abcdef";
+	conv_num(parse);
 	print_field(parse, print_unsigned);
 	return (1);
 }
 
 int			conv_hex_up(t_parse *parse)
 {
-	if (parse->prec >= 0)
-		parse->padlen = parse->width - parse->prec;
+	parse->nb = va_arg(*parse->ap, unsigned int);
 	parse->base = 16;
 	parse->charset = "0123456789ABCDEF";
+	conv_num(parse);
 	print_field(parse, print_unsigned);
 	return (1);
 }
 
-int			conv_pc()
+void		print_pc(t_parse *parse)
 {
-	write(1, "%", 1);
+	write_buf(parse->buf, '%');
+}
+
+int			conv_pc(t_parse *parse)
+{
+	print_field(parse, print_pc);
 	return (1);
 }
 
 int			conv_ptr(t_parse *parse)
 {
-	if (parse->prec >= 0)
-		parse->padlen = parse->width - parse->prec;
+	parse->nb = va_arg(*parse->ap, long);
 	parse->base = 16;
 	parse->charset = "0123456789abcdef";
+	conv_num(parse);
 	print_field(parse, print_unsigned);
 	return (1);
 }
@@ -250,6 +254,8 @@ int			conv_string(t_parse *parse)
 
 int			conv_uns(t_parse *parse)
 {
+	parse->nb = va_arg(*parse->ap, unsigned int);
+	conv_num(parse);
 	print_field(parse, print_unsigned);
 	return (1);
 }
@@ -280,8 +286,7 @@ int			flag_prec(t_parse *parse)
 	(*parse->fmt)++;
 	if(**parse->fmt == '*')
 	{
-		(*parse->fmt)++;
-		parse->prec = ft_atoi(parse->fmt);
+		parse->prec = va_arg(*parse->ap, int);
 	}
 	else
 		parse->prec = ft_atoi(parse->fmt);
