@@ -14,6 +14,7 @@ void teststr(char *fmt, const char arg[static 1])
 int		main(void)
 {
 	int		a = 3;
+	testint("{%7d}\n", 14);
 	testint("{%5c}\n", 'a');
 	testint("{%d}\n", -5);
 	testint("{%.d}\n", 0);

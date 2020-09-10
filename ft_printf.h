@@ -53,6 +53,7 @@ typedef struct  s_parse
 	int			prec;
 	int			base;
 	char		pad;
+	_Bool		zero;
 	_Bool		left;
 	_Bool		neg;
 }               t_parse;

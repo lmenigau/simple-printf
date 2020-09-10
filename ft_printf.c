@@ -109,7 +109,7 @@ void		print_unsigned(t_parse *parse)
 	unsigned long  n;
 
 	if (parse->prec >= 0)
-		parse->pad = ' ';
+		parse->zero = 0;
 	n = va_arg(*parse->ap, unsigned int);
 	if (parse->prec == 0 && n == 0)
 		return ;
@@ -123,7 +123,8 @@ void		print_signed(t_parse *parse)
 {
 	if (parse->neg)
 		write_buf(parse->buf, '-');
-	pad_char(parse->buf, parse->prec - parse->nlen, '0');
+	dprintf(9, "%d\n", parse->prec);
+	pad_char(parse->buf, parse->prec - parse->nlen - (parse->zero && parse->neg), '0');
 	ft_putnbr_base_prec(parse->buf, parse->nb, parse->charset, parse->base);
 }
 
@@ -162,18 +163,20 @@ int			conv_int(t_parse *parse)
 {
 
 	if (parse->prec >= 0)
+	{
+		parse->zero = 0;
 		parse->pad = ' ';
+	}
+	if (parse->zero)
+		parse->prec = parse->width;
 	parse->nb = va_arg(*parse->ap, int);
-	if (parse->prec == 0 && parse->nb == 0)
-		return (1);
-	parse->neg = parse->nb < 0;
-	parse->nlen = number_len(parse->nb, parse->base) + parse->neg;
+	parse->neg = (parse->nb < 0);
 	if (parse->neg)
 		parse->nb = -parse->nb;
+	parse->nlen = number_len(parse->nb, parse->base);
 	if (parse->prec < parse->nlen)
-		parse->prec = parse->nlen + parse->neg;
-	if (parse->prec >= 0)
-		parse->padlen = parse->width - parse->prec;
+		parse->prec = parse->nlen;
+	parse->padlen = parse->width - parse->prec - parse->neg;
 	print_field(parse, print_signed);
 	return (1);
 }
@@ -283,7 +286,7 @@ int			flag_prec(t_parse *parse)
 
 int			flag_zero(t_parse *parse)
 {
-	if (!parse->left)
+		parse->zero = 1;
 		parse->pad = '0';
 	return (0);
 }
@@ -317,8 +320,8 @@ void		parse_format(char **fmt, va_list *ap, t_buf *buf)
 {
 	t_parse   parse;
 
-	parse = (t_parse){ .fmt = fmt, .ap = ap, .width = 0, .left = 0, .pad = ' ',
-		.prec = -1, .base = 10, .charset = "0123456789", .buf = buf };
+	parse = (t_parse){ .fmt = fmt, .ap = ap, .width = 0, .left = 0, .zero = 0,
+		.prec = -1, .base = 10, .charset = "0123456789", .buf = buf, .pad = ' ' };
 	(*fmt)++;
 	while (g_parse[(unsigned)**fmt])
 	{
