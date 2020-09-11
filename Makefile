@@ -1,7 +1,7 @@
 SRC		= ft_printf.c
 OBJ		= $(SRC:.c=.o)
 
-CFLAGS	= -Wall -Wextra -O3
+CFLAGS	= -Wall -Wextra -O3 -g
 
 NAME	= libftprintf.a
 

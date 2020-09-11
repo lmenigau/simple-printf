@@ -58,6 +58,7 @@ typedef struct  s_parse
 	_Bool		left;
 	_Bool		neg;
 	_Bool		hash;
+	_Bool		space;
 }               t_parse;
 
 #endif

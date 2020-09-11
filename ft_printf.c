@@ -118,11 +118,12 @@ void		print_unsigned(t_parse *parse)
 
 void		print_signed(t_parse *parse)
 {
-	if (parse->neg)
+	if (parse->neg && !parse->zero)
 		write_buf(parse->buf, '-');
-	dprintf(9, "%d\n", parse->prec);
+	else if (parse->space)
+		write_buf(parse->buf, ' ');
 	pad_char(parse->buf, parse->pwidth - parse->nlen - (parse->zero && parse->neg), '0');
-	if (parse->prec)
+	if (parse->prec || parse->nb)
 		ft_putnbr_base_prec(parse->buf, parse->nb, parse->charset, parse->base);
 }
 
@@ -166,8 +167,6 @@ void	conv_num(t_parse *parse)
 		parse->zero = 0;
 		parse->pad = ' ';
 	}
-	if (parse->zero)
-		parse->prec = parse->width;
 	parse->nlen = number_len(parse->nb, parse->base);
 	if (!parse->prec && !parse->nb)
 		parse->nlen = 0;
@@ -208,6 +207,16 @@ int			conv_hex(t_parse *parse)
 	parse->nb = va_arg(*parse->ap, unsigned int);
 	parse->base = 16;
 	parse->charset = "0123456789abcdef";
+	conv_num(parse);
+	print_field(parse, print_unsigned);
+	return (1);
+}
+
+int			conv_octal(t_parse *parse)
+{
+	parse->nb = va_arg(*parse->ap, unsigned int);
+	parse->base = 8;
+	parse->charset = "01234567";
 	conv_num(parse);
 	print_field(parse, print_unsigned);
 	return (1);
@@ -276,6 +285,8 @@ int			flag_aste(t_parse *parse)
 	{
 		parse->width = -parse->width;
 		parse->left = 1;
+		parse->zero = 0;
+		parse->pad = ' ';
 	}
 	return (0);
 }
@@ -305,6 +316,12 @@ int			flag_zero(t_parse *parse)
 	return (0);
 }
 
+int			flag_space(t_parse *parse)
+{
+	parse->space = 1;
+	return (0);
+}
+
 int     (*(g_parse[256]))(t_parse *) = {
 	['1'] = parse_field,
 	['2'] = parse_field,
@@ -320,6 +337,7 @@ int     (*(g_parse[256]))(t_parse *) = {
 	['p'] = conv_ptr,
 	['d'] = conv_int,
 	['i'] = conv_int,
+	['o'] = conv_octal,
 	['u'] = conv_uns,
 	['x'] = conv_hex,
 	['X'] = conv_hex_up,
@@ -328,6 +346,7 @@ int     (*(g_parse[256]))(t_parse *) = {
 	['0'] = flag_zero,
 	['.'] = flag_prec,
 	['*'] = flag_aste,
+	[' '] = flag_space,
 };
 
 void		parse_format(char **fmt, va_list *ap, t_buf *buf)
