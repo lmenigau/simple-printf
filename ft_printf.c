@@ -150,6 +150,8 @@ size_t		ft_strlen(const char *s)
 
 void		print_field(t_parse *parse, void (f)(t_parse *))
 {
+	if (parse->zero && parse->neg)
+		write_buf(parse->buf, '-');
 	if (parse->left)
 		f(parse);
 	pad_char(parse->buf, parse->padlen, parse->pad);
@@ -269,16 +271,12 @@ int			conv_uns(t_parse *parse)
 
 int			flag_aste(t_parse *parse)
 {
-	int  width;
-
-	width = va_arg(*parse->ap, int);
-	if (width < 0)
+	parse->width = va_arg(*parse->ap, int);
+	if (parse->width < 0)
 	{
-		parse->width = -width;
+		parse->width = -parse->width;
 		parse->left = 1;
 	}
-	else
-		parse->width = width;
 	return (0);
 }
 
