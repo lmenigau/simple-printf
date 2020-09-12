@@ -56,14 +56,14 @@ int			parse_field(t_parse *parse)
 
 void		write_buf(t_buf *buf, char c)
 {
-		buf->buf[buf->index] = c;
-		buf->index++;
-		buf->total++;
-		if (buf->index == 1024)
-		{
-			write(1, buf->buf, 1024);
-			buf->index = 0;
-		}
+	buf->buf[buf->index] = c;
+	buf->index++;
+	buf->total++;
+	if (buf->index == 1024)
+	{
+		write(1, buf->buf, 1024);
+		buf->index = 0;
+	}
 }
 
 void		ft_putnbr_base_prec(t_buf *buf, unsigned long n, const char base[], int len)
@@ -112,7 +112,7 @@ void		print_unsigned(t_parse *parse)
 		write_buf(parse->buf, 'x');
 	}
 	pad_char(parse->buf, parse->pwidth - parse->nlen, '0');
-	if (parse->prec)
+	if (parse->prec || parse->nb)
 		ft_putnbr_base_prec(parse->buf, parse->nb, parse->charset, parse->base);
 }
 
@@ -175,6 +175,7 @@ void	conv_num(t_parse *parse)
 		parse->pwidth = parse->prec;
 	parse->padlen = parse->width - parse->pwidth - parse->neg;
 }
+
 int			conv_int(t_parse *parse)
 {
 
@@ -377,10 +378,7 @@ int			ft_printf(const char *format, ...)
 		if (*format == '%')
 			parse_format((char **)&format, &ap, &buf);
 		else
-		{
 			write_buf(&buf, *format);
-			buf.total++;
-		}
 		format++;
 	}
 	va_end(ap);
