@@ -32,13 +32,7 @@ int			ft_atoi(char **fmt)
 
 	str = *fmt;
 	neg = 1;
-	while (*str && is_space(*str))
-		str++;
 	nb = 0;
-	if (*str == '-')
-		neg = -1;
-	if (*str == '+' || *str == '-')
-		str++;
 	while (*str && ft_isdigit(*str))
 	{
 		nb = nb * 10 + (*str - '0') * neg;
@@ -184,6 +178,7 @@ int			conv_int(t_parse *parse)
 	if (parse->neg)
 		parse->nb = -parse->nb;
 	conv_num(parse);
+	parse->padlen -= parse->space;
 	print_field(parse, print_signed);
 	return (1);
 }
