@@ -19,23 +19,16 @@ static int	ft_isdigit(char c)
 	return (c >= '0' && c <= '9');
 }
 
-static int	is_space(char c)
-{
-	return ((c >= '\t' && c <= '\r') || c == ' ');
-}
-
 int			ft_atoi(char **fmt)
 {
 	int		nb;
-	int		neg;
 	char	*str;
 
 	str = *fmt;
-	neg = 1;
 	nb = 0;
 	while (*str && ft_isdigit(*str))
 	{
-		nb = nb * 10 + (*str - '0') * neg;
+		nb = nb * 10 + (*str - '0');
 		str++;
 	}
 	*fmt = str - 1;
@@ -387,7 +380,8 @@ int			ft_printf(const char *format, ...)
 			parse_format((char **)&format, &ap, &buf);
 		else
 			write_buf(&buf, *format);
-		format++;
+		if (*format)
+			format++;
 	}
 	va_end(ap);
 	write(1, buf.buf, buf.index);
