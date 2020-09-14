@@ -1,7 +1,8 @@
-SRC		= ft_printf.c
+SRC		= ft_printf.c conv_num.c conv_other.c conv_util.c flag.c ft_printf.c\
+			parsing.c print.c print_util.c util.c
 OBJ		= $(SRC:.c=.o)
 
-CFLAGS	= -Wall -Wextra -g  -O3#
+CFLAGS	= -Wall -Wextra -g #
 
 NAME	= libftprintf.a
 

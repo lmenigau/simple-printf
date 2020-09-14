@@ -15,21 +15,9 @@
 # define    FT_PRINT_H
 
 # include <stdarg.h>
-# include <stdio.h>
+# include <unistd.h>
 
 int		ft_printf(const char *format, ...);
-int		parse_field();
-int		conv_char();
-int		conv_string();
-int		conv_ptr();
-int		conv_int();
-int		conv_uns();
-int		conv_hex();
-int		conv_pc();
-int		flag_min();
-int		flag_zero();
-int		flag_prec();
-int		flag_aste();
 
 typedef struct  s_buf
 {
@@ -60,5 +48,41 @@ typedef struct  s_parse
 	_Bool		hash;
 	_Bool		space;
 }               t_parse;
+
+void			print_field(t_parse	*parse,	void	(f)(t_parse	*));
+
+int		ft_atoi(char	**fmt);
+size_t      ft_strlen(const char *s);
+void        ft_putnbr_base_prec(t_buf *buf, unsigned long n, const char base[],
+	int len);
+
+void        pad_char(t_buf *buf, int n, char c);
+void        print_field(t_parse *parse, void (f)(t_parse *));
+void	write_buf(t_buf	*buf,	char	c);
+void	print_unsigned(t_parse	*parse);
+void	print_signed(t_parse	*parse);
+void        print_pc(t_parse *parse);
+void        print_char(t_parse *parse);
+void        print_str(t_parse *parse);
+
+int     parse_field(t_parse *parse);
+int		number_len(unsigned	long	n,	int	base);
+
+void    conv_num(t_parse *parse);
+int		conv_char(t_parse *parse);
+int		conv_string(t_parse *parse);
+int		conv_ptr(t_parse *parse);
+int		conv_int(t_parse *parse);
+int		conv_uns(t_parse *parse);
+int		conv_hex(t_parse *parse);
+int		conv_hex_up(t_parse	*parse);
+int		conv_pc(t_parse *parse);
+int		conv_octal(t_parse *parse);
+
+int		flag_space(t_parse	*parse);
+int		flag_min(t_parse *parse);
+int		flag_zero(t_parse *parse);
+int		flag_prec(t_parse *parse);
+int		flag_aste(t_parse *parse);
 
 #endif
