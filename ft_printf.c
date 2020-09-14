@@ -100,7 +100,7 @@ int			number_len(unsigned long n, int base)
 
 void		print_unsigned(t_parse *parse)
 {
-	if (parse->hash)
+	if (parse->hash && !parse->zero)
 	{
 		write_buf(parse->buf, '0');
 		write_buf(parse->buf, 'x');
@@ -114,7 +114,7 @@ void		print_signed(t_parse *parse)
 {
 	if (parse->neg && !parse->zero)
 		write_buf(parse->buf, '-');
-	else if (parse->space)
+	else if (parse->space && !parse->zero)
 		write_buf(parse->buf, ' ');
 	pad_char(parse->buf, parse->pwidth - parse->nlen - (parse->zero && parse->neg), '0');
 	if (parse->prec || parse->nb)
@@ -178,7 +178,10 @@ int			conv_int(t_parse *parse)
 	if (parse->neg)
 		parse->nb = -parse->nb;
 	conv_num(parse);
-	parse->padlen -= parse->space;
+	if (!parse->neg)
+		parse->padlen -= parse->space;
+	if (parse->zero && !parse->neg && parse->space)
+		write_buf(parse->buf, ' ');
 	print_field(parse, print_signed);
 	return (1);
 }
@@ -248,6 +251,11 @@ int			conv_ptr(t_parse *parse)
 	parse->charset = "0123456789abcdef";
 	conv_num(parse);
 	parse->padlen -= 2;
+	if (parse->hash && parse->zero)
+	{
+		write_buf(parse->buf, '0');
+		write_buf(parse->buf, 'x');
+	}
 	print_field(parse, print_unsigned);
 	return (1);
 }
@@ -290,6 +298,8 @@ int			flag_aste(t_parse *parse)
 int			flag_min(t_parse *parse)
 {
 	parse->left = 1;
+	parse->zero = 0;
+	parse->pad = ' ';
 	return (0);
 }
 
@@ -307,8 +317,11 @@ int			flag_prec(t_parse *parse)
 
 int			flag_zero(t_parse *parse)
 {
+	if (!parse->left)
+	{
 		parse->zero = 1;
 		parse->pad = '0';
+	}
 	return (0);
 }
 
